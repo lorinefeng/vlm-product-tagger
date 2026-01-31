@@ -67,21 +67,59 @@ export default function ResultDownloader({ results, onDownload, onReset }: Resul
                 </div>
 
                 {/* 预览表格 */}
-                <div className="mb-6 max-h-64 overflow-auto rounded-xl" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                <div className="mb-6 max-h-96 overflow-auto rounded-xl" style={{ background: 'rgba(0,0,0,0.3)' }}>
                     <table className="w-full text-sm">
                         <thead className="sticky top-0" style={{ background: 'rgba(20,20,30,0.95)' }}>
                             <tr style={{ color: '#d4af37' }}>
-                                <th className="text-left p-3 font-medium">商品名称</th>
+                                <th className="text-left p-3 font-medium" style={{ width: '100px' }}>商品图片</th>
+                                <th className="text-left p-3 font-medium" style={{ width: '200px' }}>商品名称</th>
                                 <th className="text-left p-3 font-medium">生成标签</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {results.slice(0, 10).map((result, index) => (
+                            {results.slice(0, 50).map((result, index) => (
                                 <tr key={index} className="border-t" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-                                    <td className="p-3" style={{ color: 'rgba(255,255,255,0.8)' }}>
-                                        {result.productName?.slice(0, 30) || '未命名'}
-                                        {(result.productName?.length || 0) > 30 && '...'}
+                                    {/* 商品图片 */}
+                                    <td className="p-3">
+                                        {result.imageURL ? (
+                                            <img
+                                                src={result.imageURL}
+                                                alt={result.productName}
+                                                className="rounded-lg object-cover"
+                                                style={{
+                                                    width: '80px',
+                                                    height: '80px',
+                                                    border: '1px solid rgba(212,175,55,0.2)',
+                                                }}
+                                                onError={(e) => {
+                                                    const target = e.currentTarget;
+                                                    const sibling = target.nextElementSibling as HTMLElement;
+                                                    target.style.display = 'none';
+                                                    if (sibling) sibling.style.display = 'flex';
+                                                }}
+                                            />
+                                        ) : null}
+                                        <div
+                                            className="rounded-lg flex items-center justify-center"
+                                            style={{
+                                                width: '80px',
+                                                height: '80px',
+                                                background: 'rgba(255,255,255,0.05)',
+                                                color: 'rgba(255,255,255,0.3)',
+                                                fontSize: '12px',
+                                                display: result.imageURL ? 'none' : 'flex',
+                                            }}
+                                        >
+                                            无图
+                                        </div>
                                     </td>
+                                    {/* 商品名称 */}
+                                    <td className="p-3" style={{ color: 'rgba(255,255,255,0.8)' }}>
+                                        <div className="line-clamp-2" title={result.productName}>
+                                            {result.productName || '未命名'}
+                                        </div>
+                                    </td>
+                                    {/* 生成标签 */}
                                     <td className="p-3">
                                         {result.tags === 'FAILED' || result.tags === 'API_NOT_CONFIGURED' ? (
                                             <span style={{ color: '#ff453a' }}>处理失败</span>
@@ -89,7 +127,7 @@ export default function ResultDownloader({ results, onDownload, onReset }: Resul
                                             <span style={{ color: '#ff9f0a' }}>无图片</span>
                                         ) : (
                                             <div className="flex flex-wrap gap-1">
-                                                {result.tags?.split('|').slice(0, 5).map((tag, i) => (
+                                                {result.tags?.split('|').slice(0, 8).map((tag, i) => (
                                                     <span
                                                         key={i}
                                                         className="px-2 py-0.5 rounded text-xs"
@@ -101,9 +139,9 @@ export default function ResultDownloader({ results, onDownload, onReset }: Resul
                                                         {tag}
                                                     </span>
                                                 ))}
-                                                {(result.tags?.split('|').length || 0) > 5 && (
+                                                {(result.tags?.split('|').length || 0) > 8 && (
                                                     <span className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                                                        +{(result.tags?.split('|').length || 0) - 5}
+                                                        +{(result.tags?.split('|').length || 0) - 8}
                                                     </span>
                                                 )}
                                             </div>
@@ -113,9 +151,9 @@ export default function ResultDownloader({ results, onDownload, onReset }: Resul
                             ))}
                         </tbody>
                     </table>
-                    {results.length > 10 && (
+                    {results.length > 50 && (
                         <div className="p-3 text-center text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                            仅显示前 10 条，共 {results.length} 条结果
+                            仅显示前 50 条，共 {results.length} 条结果
                         </div>
                     )}
                 </div>
