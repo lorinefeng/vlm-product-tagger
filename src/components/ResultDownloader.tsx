@@ -15,6 +15,13 @@ interface ResultDownloaderProps {
 export default function ResultDownloader({ results, onDownload, onReset }: ResultDownloaderProps) {
     if (results.length === 0) return null;
 
+    // 通过代理 API 加载图片，解决 CORS 问题
+    const getProxyImageURL = (url: string): string => {
+        if (!url) return '';
+        // 使用代理 API 加载图片
+        return `/api/proxy-image?url=${encodeURIComponent(url)}`;
+    };
+
     const successCount = results.filter(r => r.tags && r.tags !== 'FAILED' && r.tags !== 'NO_IMAGE' && r.tags !== 'API_NOT_CONFIGURED').length;
     const failedCount = results.length - successCount;
 
@@ -83,7 +90,7 @@ export default function ResultDownloader({ results, onDownload, onReset }: Resul
                                     <td className="p-3">
                                         {result.imageURL ? (
                                             <img
-                                                src={result.imageURL}
+                                                src={getProxyImageURL(result.imageURL)}
                                                 alt={result.productName}
                                                 className="rounded-lg object-cover"
                                                 style={{
