@@ -15,11 +15,11 @@ interface ResultDownloaderProps {
 export default function ResultDownloader({ results, onDownload, onReset }: ResultDownloaderProps) {
     if (results.length === 0) return null;
 
-    // 通过代理 API 加载图片，解决 CORS 问题
-    const getProxyImageURL = (url: string): string => {
+    // 清理图片 URL - 移除 OSS 处理参数，让浏览器直接加载原图
+    const cleanImageURL = (url: string): string => {
         if (!url) return '';
-        // 使用代理 API 加载图片
-        return `/api/proxy-image?url=${encodeURIComponent(url)}`;
+        // 移除 ?x-oss-process 参数，使用原图
+        return url.split('?')[0];
     };
 
     const successCount = results.filter(r => r.tags && r.tags !== 'FAILED' && r.tags !== 'NO_IMAGE' && r.tags !== 'API_NOT_CONFIGURED').length;
@@ -90,7 +90,7 @@ export default function ResultDownloader({ results, onDownload, onReset }: Resul
                                     <td className="p-3">
                                         {result.imageURL ? (
                                             <img
-                                                src={getProxyImageURL(result.imageURL)}
+                                                src={cleanImageURL(result.imageURL)}
                                                 alt={result.productName}
                                                 className="rounded-lg object-cover"
                                                 style={{

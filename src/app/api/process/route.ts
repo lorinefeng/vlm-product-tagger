@@ -2,11 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
 // VLM API 配置
-const apiKey = process.env.APPLESAY_API_KEY || process.env.OPENAI_API_KEY;
-const baseURL = process.env.APPLESAY_BASE_URL || 'http://ai-api.applesay.cn/v1';
-const modelName = process.env.APPLESAY_MODEL || 'qwen3-vl-plus';
+// 优先使用 DashScope 国际端点（新加坡节点），Vercel 可访问
+// 如需使用国内 API，请设置 APPLESAY_BASE_URL
+const apiKey = process.env.DASHSCOPE_API_KEY || process.env.APPLESAY_API_KEY || process.env.OPENAI_API_KEY;
+const baseURL = process.env.DASHSCOPE_BASE_URL || process.env.APPLESAY_BASE_URL || 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1';
+const modelName = process.env.VLM_MODEL || process.env.APPLESAY_MODEL || 'qwen-vl-plus';
 
-const client = apiKey ? new OpenAI({ apiKey, baseURL }) : null;
+const client = apiKey ? new OpenAI({
+    apiKey,
+    baseURL,
+    timeout: 60000, // 60秒超时
+}) : null;
 
 // 系统提示词
 const SYSTEM_PROMPT = `你是一位奢侈品与时尚专家，擅长从视觉角度准确、简洁地描述商品特征，以便于搜索引擎索引。
